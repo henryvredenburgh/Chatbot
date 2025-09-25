@@ -2,7 +2,7 @@
 date_default_timezone_set('Asia/Dhaka');
 require_once 'dbconfig/config.php';
 
-$stmt = $db->quote($_POST['txt']);
+$stmt = $_POST['txt'];
 $sql="SELECT reply from chatbot_hints WHERE question LIKE '%$stmt%'";
 $result = $db->prepare($sql);
 $result->execute();
