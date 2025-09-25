@@ -2,58 +2,30 @@
 date_default_timezone_set('Asia/Dhaka');
 require_once 'dbconfig/config.php';
 
-$stmt = strtolower($_POST['txt']);
+// --- Fetch reply ---
 $sql = "SELECT reply FROM chatbot_hints WHERE LOWER(question) LIKE ?";
-$result = $db->prepare($sql);
-$result->execute(["%" . $stmt . "%"]);
-if($result->rowCount() > 0){
-	$row = $result->fetch(PDO::FETCH_ASSOC);
-	$content = $row['reply'];
-}else{
-	$content = "Sorry not be able to understand you";
+$stmt = $db->prepare($sql);
+$term = "%" . strtolower($_POST['txt']) . "%";
+$stmt->execute([$term]);
+
+if ($stmt->rowCount() > 0) {
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $content = $row['reply'];
+} else {
+    $content = "Sorry not be able to understand you";
 }
-$result->closeCursor();
+$stmt->closeCursor();
 
-$added_on=date('Y-m-d h:i:s');
-$db->prepare("INSERT INTO message(message,added_on,type) VALUES('$stmt','$added_on','user')");
+// --- Insert user message ---
+$added_on = date('Y-m-d H:i:s');
+$insertUser = $db->prepare("INSERT INTO message (message, added_on, type) VALUES (?, ?, 'user')");
+$insertUser->execute([$_POST['txt'], $added_on]);
 
-/*
-********************
-NO Need to do this
-**$db->execute(); 
-**$db->closeCursor();
-*********************
-*/
+// --- Insert bot reply ---
+$added_on = date('Y-m-d H:i:s');
+$insertBot = $db->prepare("INSERT INTO message (message, added_on, type) VALUES (?, ?, 'bot')");
+$insertBot->execute([$content, $added_on]);
 
-$added_on=date('Y-m-d h:i:s');
-$db->prepare("INSERT INTO message(message,added_on,type) VALUES('$content','$added_on','bot')");
-
-/*
-********************
-** NO Need to do this
-** $db->execute();  
-** $db->closeCursor();
-**********************
-*/
-
-echo $content;
-echo " ";
+// --- Output reply ---
+echo $content . " ";
 ?>
-
-
-<!--
-<!DOCTYPE html>
-<html>
-<head>
-	<title></title>
-</head>
-<style>
-
-	<link href="style.css" rel="stylesheet">
-</style>
-<a href="#"><small><input name="invalid"  type="button" id="admin_btn" value="Invalid?"></small></a>
-
-<body>
-
-</body>
-</html>-->
