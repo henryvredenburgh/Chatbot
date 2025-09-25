@@ -2,10 +2,10 @@
 date_default_timezone_set('Asia/Dhaka');
 require_once 'dbconfig/config.php';
 
-$stmt = $_POST['txt'];
-$sql="SELECT reply from chatbot_hints WHERE question LIKE '$stmt'";
+$stmt = strtolower($_POST['txt']);
+$sql = "SELECT reply FROM chatbot_hints WHERE LOWER(question) LIKE ?";
 $result = $db->prepare($sql);
-$result->execute();
+$result->execute(["%" . $stmt . "%"]);
 if($result->rowCount() > 0){
 	$row = $result->fetch(PDO::FETCH_ASSOC);
 	$content = $row['reply'];
