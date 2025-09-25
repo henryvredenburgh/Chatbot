@@ -2,8 +2,9 @@
 date_default_timezone_set('Asia/Dhaka');
 require_once 'dbconfig/config.php';
 
-$stmt = trim($_POST['txt'], "'"); // strip extra quotes if they exist
-$sql = "SELECT reply FROM chatbot_hints WHERE LOWER(question) LIKE LOWER('%$stmt%')";
+$stmt = trim($_POST['txt'], "'"); // strip stray quotes if they exist
+$sql = "SELECT reply FROM chatbot_hints 
+        WHERE LOWER(question) LIKE LOWER(CONCAT('%', '$stmt', '%'))";
 $result = $db->prepare($sql);
 $result->execute();
 if ($result->rowCount() > 0) {
